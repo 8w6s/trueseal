@@ -90,7 +90,6 @@ out.vault
 # SOME STUFFS
 REPORTS.md
 USAGE_GUIDE.md
-tests/
 scripts/install.ps1
 scripts/install.sh
 ARCHITECTURE.md
