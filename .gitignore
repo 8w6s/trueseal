@@ -91,5 +91,6 @@ out.vault
 REPORTS.md
 USAGE_GUIDE.md
 tests/
-scripts/
+scripts/install.ps1
+scripts/install.sh
 ARCHITECTURE.md
