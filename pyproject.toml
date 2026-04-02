@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trueseal"
+version = "0.1.0-beta"
+description = "🦭 Enterprise-grade source code encryption"
+authors = [{name = "8w6s", email = "satoharuki2321@proton.me"}]
+requires-python = ">=3.10"
+readme = {file = "README.md", content-type = "text/markdown"}
+dependencies = [
+    "click>=8.1.7",
+    "cryptography>=41.0.7",
+    "PyYAML>=6.0.1",
+    "Pillow>=10.1.0",
+    "pyotp>=2.8.0",
+    "rich>=13.0.0",
+    "prompt_toolkit>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "mypy>=1.5.0",
+    "pylint>=2.17.0",
+    "black>=23.7.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "bandit>=1.7.5",
+    "pydocstyle>=6.3.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["trueseal*"]
+exclude = ["tests*", "d_*", "out_*", "shr", "test_data"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+norecursedirs = ["source", "extracted", "claudesrc", "shards", ".agent-work", ".github"]
+addopts = "-ra"
+
+[project.scripts]
+trueseal = "trueseal.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/8w6s/trueseal"
+Repository = "https://github.com/8w6s/trueseal.git"

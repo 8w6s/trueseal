@@ -1,0 +1,64 @@
+name: PyPI Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_target:
+        description: 'Where to publish the package'
+        required: true
+        type: choice
+        options:
+          - testpypi
+          - pypi
+        default: testpypi
+      dist_path:
+        description: 'Path to the built distribution artifacts'
+        required: false
+        type: string
+        default: dist
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-${{ github.ref }}-${{ inputs.publish_target }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to ${{ inputs.publish_target }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip build twine
+
+      - name: Build distribution
+        run: |
+          python -m build
+          python -m twine check dist/*
+
+      - name: Publish to TestPyPI
+        if: inputs.publish_target == 'testpypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: ${{ inputs.dist_path }}
+
+      - name: Publish to PyPI
+        if: inputs.publish_target == 'pypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: ${{ inputs.dist_path }}
+
