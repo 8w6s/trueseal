@@ -9,6 +9,7 @@ and automatically decrypts vaults post-checkout when switching branches.
 import click
 import subprocess
 import shutil
+import sys
 from pathlib import Path
 from ..ui.styling import UIStyle, console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
@@ -93,36 +94,50 @@ def cmd(ctx, action, repo):
         pre_commit_content = """#!/bin/bash
 # TrueSeal pre-commit hook bootstrap.
 
+                PYTHON_EXECUTABLE="{python_executable}"
+
 if command -v trueseal >/dev/null 2>&1; then
   trueseal internal-hook pre-commit --repo .
   exit $?
 fi
 
-if command -v python >/dev/null 2>&1; then
-  python -m trueseal internal-hook pre-commit --repo .
+                if [ -x "$PYTHON_EXECUTABLE" ]; then
+                  "$PYTHON_EXECUTABLE" -m trueseal internal-hook pre-commit --repo .
   exit $?
 fi
 
-echo "[TrueSeal][ERROR] Neither 'trueseal' nor 'python' is available in PATH."
+                if command -v python >/dev/null 2>&1; then
+                  python -m trueseal internal-hook pre-commit --repo .
+                  exit $?
+                fi
+
+                echo "[TrueSeal][ERROR] Neither 'trueseal' nor a usable Python interpreter is available."
 exit 127
-"""
+                """.format(python_executable=sys.executable)
 
         post_checkout_content = """#!/bin/bash
 # TrueSeal post-checkout hook bootstrap.
+
+                PYTHON_EXECUTABLE="{python_executable}"
 
 if command -v trueseal >/dev/null 2>&1; then
   trueseal internal-hook post-checkout --repo .
   exit $?
 fi
 
-if command -v python >/dev/null 2>&1; then
-  python -m trueseal internal-hook post-checkout --repo .
+                if [ -x "$PYTHON_EXECUTABLE" ]; then
+                  "$PYTHON_EXECUTABLE" -m trueseal internal-hook post-checkout --repo .
   exit $?
 fi
 
-echo "[TrueSeal][WARN] Neither 'trueseal' nor 'python' is available in PATH."
+                if command -v python >/dev/null 2>&1; then
+                  python -m trueseal internal-hook post-checkout --repo .
+                  exit $?
+                fi
+
+                echo "[TrueSeal][WARN] Neither 'trueseal' nor a usable Python interpreter is available."
 exit 0
-"""
+                """.format(python_executable=sys.executable)
 
         with open(pre_commit_hook, 'w', encoding='utf-8', newline='\n') as f:
             f.write(pre_commit_content)

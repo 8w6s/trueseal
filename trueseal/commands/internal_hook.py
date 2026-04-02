@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import sys
 from pathlib import Path
 
 import click
@@ -34,7 +35,7 @@ def _run_command(args, cwd):
 def _resolve_trueseal_runner():
     if shutil.which("trueseal"):
         return ["trueseal"]
-    return ["python", "-m", "trueseal"]
+    return [sys.executable, "-m", "trueseal"]
 
 
 def _resolve_key_path(repo_path, allow_missing=False):
